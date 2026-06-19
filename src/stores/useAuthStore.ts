@@ -149,10 +149,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-      const isAdmin = data.user?.user_metadata?.role === 'admin' || data.user?.email === 'admin@hackconnect.app';
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to login');
+      }
+
+      const { user, session, profile } = await res.json();
+
+      // Set active session in client-side Supabase client to sync RLS context
+      const { error: sessionErr } = await supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token
+      });
+      if (sessionErr) throw sessionErr;
+
+      const isAdmin = user.user_metadata?.role === 'admin' || user.email === 'admin@hackconnect.app';
 
       if (isAdminPortal && !isAdmin) {
         // If logged in via Admin portal but not an admin, sign out instantly
@@ -160,17 +177,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         throw new Error('Unauthorized. You are not an administrator.');
       }
 
-      let profile: Profile | null = null;
-      if (!isAdmin) {
-        const { data: pData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-        profile = pData || null;
-      }
-
-      set({ user: data.user, profile, isAdmin, isLoading: false });
+      set({ user, profile, isAdmin, isLoading: false });
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
       throw err;
@@ -202,32 +209,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName
-          }
-        }
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, fullName })
       });
-      if (error) throw error;
 
-      if (data.user) {
-        // Initialize an empty profile row
-        const newProfile = {
-          id: data.user.id,
-          full_name: fullName,
-          email: email,
-          skills: [],
-          interests: []
-        };
-
-        const { error: profileErr } = await supabase.from('profiles').insert([newProfile]);
-        if (profileErr) throw profileErr;
-
-        set({ user: data.user, profile: newProfile, isLoading: false });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to register');
       }
+
+      const { user, session, profile } = await res.json();
+
+      // Auto-login the user immediately after registration by setting the session
+      const { error: sessionErr } = await supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token
+      });
+      if (sessionErr) throw sessionErr;
+
+      set({ user, profile, isLoading: false });
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
       throw err;

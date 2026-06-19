@@ -368,38 +368,21 @@ export const useNetworkingStore = create<NetworkingState>((set, get) => ({
     }
 
     try {
-      if (status === 'accepted') {
-        const { data: request } = await supabase
-          .from('connection_requests')
-          .select('*')
-          .eq('id', requestId)
-          .single();
+      const res = await fetch('/api/networking/respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requestId, status, userId, eventId })
+      });
 
-        if (request) {
-          // Insert connection
-          const { error: connErr } = await supabase
-            .from('connections')
-            .insert([{
-              user_a: request.sender_id,
-              user_b: request.receiver_id,
-              event_id: eventId
-            }]);
-
-          if (connErr) throw connErr;
-        }
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to respond to connection request');
       }
-
-      // Delete request
-      const { error: delErr } = await supabase
-        .from('connection_requests')
-        .delete()
-        .eq('id', requestId);
-
-      if (delErr) throw delErr;
 
       await get().fetchNetworkingData(userId, eventId);
     } catch (err: any) {
       console.error(err.message);
+      throw err;
     }
   },
 

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { supabase, isMockMode } from '../lib/supabase';
 import { mockDb } from '../lib/mockDb';
 import type { Connection, Message, Report } from '../types';
+import { useAuthStore } from './useAuthStore';
 
 interface ChatState {
   conversations: Connection[];
@@ -212,7 +213,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const newUnreads = { ...state.unreadCounts };
 
       // Increment unread count if we are not actively viewing this connection
-      if (state.activeConnectionId !== connectionId && message.sender_id !== localStorage.getItem('hc_current_user') ? JSON.parse(localStorage.getItem('hc_current_user')!).id : '') {
+      const currentUserId = useAuthStore.getState().user?.id;
+      if (state.activeConnectionId !== connectionId && message.sender_id !== currentUserId) {
         newUnreads[connectionId] = (newUnreads[connectionId] || 0) + 1;
       }
 

@@ -11,17 +11,13 @@ import toast from 'react-hot-toast';
 export default function MainLayout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { user, profile, signOut, initialize, isLoading: authLoading } = useAuthStore();
+  const { user, profile, signOut, isLoading: authLoading } = useAuthStore();
   const { currentEvent, events, fetchEvents, setCurrentEvent } = useEventStore();
   const { fetchNetworkingData, receivedRequests } = useNetworkingStore();
   const { fetchConversations, unreadCounts } = useChatStore();
 
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
-  // Initialize Auth session
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
 
   // Load events if auth succeeds
   useEffect(() => {

@@ -91,12 +91,12 @@ export default function OnboardingPage() {
     setSubmitting(true);
     try {
       const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(avatarSeed)}`;
-      
+
       let formattedLinkedin = linkedin.trim();
       if (formattedLinkedin && !formattedLinkedin.startsWith('http')) {
         formattedLinkedin = `https://${formattedLinkedin}`;
       }
-      
+
       let formattedGithub = github.trim();
       if (formattedGithub && !formattedGithub.startsWith('http')) {
         formattedGithub = `https://${formattedGithub}`;
@@ -132,7 +132,7 @@ export default function OnboardingPage() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-brand-purple/10 blur-[120px]" />
 
       <div className="max-w-xl w-full z-10">
-        
+
         {/* Step Indicator Header */}
         <div className="mb-8">
           <div className="flex justify-between text-xs text-zinc-500 uppercase tracking-wider mb-2 font-semibold">
@@ -149,7 +149,7 @@ export default function OnboardingPage() {
 
         {/* Card Body */}
         <div className="glass-panel p-8 rounded-2xl glow-purple border border-zinc-850 shadow-2xl">
-          
+
           {/* STEP 1: Basic Profile Info */}
           {step === 1 && (
             <div className="space-y-6">
@@ -331,11 +331,10 @@ export default function OnboardingPage() {
                     key={item.key}
                     type="button"
                     onClick={() => setGoal(item.key)}
-                    className={`text-left p-4 rounded-xl border flex flex-col justify-between h-28 transition-all ${
-                      goal === item.key
+                    className={`text-left p-4 rounded-xl border flex flex-col justify-between h-28 transition-all ${goal === item.key
                         ? 'border-brand-indigo bg-brand-indigo/10 ring-1 ring-brand-indigo'
                         : 'border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 hover:border-zinc-700'
-                    }`}
+                      }`}
                   >
                     <span className="text-2xl">{item.emoji}</span>
                     <div>
@@ -349,7 +348,7 @@ export default function OnboardingPage() {
               {/* Optional Links */}
               <div className="space-y-4 pt-4 border-t border-zinc-850">
                 <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Social Channels (Optional)</h4>
-                
+
                 <div className="flex gap-2">
                   <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 flex-shrink-0">
                     <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -405,11 +404,10 @@ export default function OnboardingPage() {
                       key={evt.id}
                       type="button"
                       onClick={() => setSelectedEventId(evt.id)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all ${
-                        selectedEventId === evt.id
+                      className={`w-full text-left p-4 rounded-xl border transition-all ${selectedEventId === evt.id
                           ? 'border-brand-indigo bg-brand-indigo/10 ring-1 ring-brand-indigo'
                           : 'border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800'
-                      }`}
+                        }`}
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-bold text-white leading-tight">{evt.name}</h4>
